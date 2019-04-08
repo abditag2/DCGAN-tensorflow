@@ -279,12 +279,12 @@ class DCGAN(object):
             # Update G network
             _, summary_str = self.sess.run([g_optim, self.g_sum],
               feed_dict={ self.z: batch_z })
-            self.writer.add_summary(summary_str, counter)
+            # self.writer.add_summary(summary_str, counter)
 
             # Run g_optim twice to make sure that d_loss does not go to zero (different from paper)
             _, summary_str = self.sess.run([g_optim, self.g_sum],
               feed_dict={ self.z: batch_z })
-            self.writer.add_summary(summary_str, counter)
+            # self.writer.add_summary(summary_str, counter)
 
             errD_fake = self.d_loss_fake.eval({ self.z: batch_z })
             errD_real = self.d_loss_real.eval({ self.inputs: batch_images })

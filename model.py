@@ -291,9 +291,9 @@ class DCGAN(object):
             # errG = self.g_loss.eval({self.z: batch_z})
 
           counter += 1
-          print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
+          print("Epoch: [%2d] [%4d/%4d] time: %4.4f" \
             % (epoch, idx, batch_idxs,
-              time.time() - start_time, errD_fake+errD_real, errG))
+              time.time() - start_time))
 
           if self.sample_rate is not None and (self.sample_rate == 1 or np.mod(counter, self.sample_rate) == 1):
             if config.dataset == 'mnist':

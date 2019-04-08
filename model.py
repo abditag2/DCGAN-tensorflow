@@ -205,10 +205,24 @@ class DCGAN(object):
     #     else:
     #         print(" [!] Load failed...")
 
+    hooks = [
+        # Horovod: BroadcastGlobalVariablesHook broadcasts initial variable states
+        # from rank 0 to all other processes. This is necessary to ensure consistent
+        # initialization of all workers when training is started with random weights
+        # or restored from a checkpoint.
+        hvd.BroadcastGlobalVariablesHook(0),
+
+        # Horovod: adjust number of steps based on number of GPUs.
+        tf.train.StopAtStepHook(last_step=20000 // hvd.size()),
+
+        tf.train.LoggingTensorHook(tensors={'step': global_step, 'g_loss': self.g_loss}, every_n_iter=10),
+        tf.train.LoggingTensorHook(tensors={'step': global_step, 'd_loss': self.d_loss}, every_n_iter=10)
+    ]
+
     run_config = tf.ConfigProto()
     run_config.gpu_options.visible_device_list = str(hvd.local_rank())
 
-    with tf.train.MonitoredTrainingSession(checkpoint_dir=None, config=run_config, hooks=None) as sess:
+    with tf.train.MonitoredTrainingSession(checkpoint_dir=None, config=run_config, hooks=hooks) as sess:
       for epoch in xrange(config.epoch):
         if config.dataset == 'mnist':
           batch_idxs = min(len(self.data_X), config.train_size) // self.batch_size

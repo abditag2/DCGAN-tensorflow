@@ -20,9 +20,11 @@ flags.DEFINE_integer("batch_size", None, "The size of batch images [64]")
 flags.DEFINE_integer("grid_height", 8, "Grid Height")
 flags.DEFINE_integer("grid_width", 8, "Grid Width")
 flags.DEFINE_integer("input_height", None, "The size of image to use (will be center cropped). [108]")
-flags.DEFINE_integer("input_width", None, "The size of image to use (will be center cropped). If None, same value as input_height [None]")
+flags.DEFINE_integer("input_width", None,
+                     "The size of image to use (will be center cropped). If None, same value as input_height [None]")
 flags.DEFINE_integer("output_height", None, "The size of the output images to produce [64]")
-flags.DEFINE_integer("output_width", None, "The size of the output images to produce. If None, same value as output_height [None]")
+flags.DEFINE_integer("output_width", None,
+                     "The size of the output images to produce. If None, same value as output_height [None]")
 flags.DEFINE_string("dataset", "celebA", "The name of dataset [celebA, mnist, lsun]")
 flags.DEFINE_string("input_fname_pattern", "*.jpg", "Glob pattern of filename of input images [*]")
 flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the checkpoints [checkpoint]")
@@ -39,11 +41,11 @@ FLAGS = flags.FLAGS
 
 # default batch_size
 if FLAGS.batch_size is None and FLAGS.grid_height is not None and FLAGS.grid_width is not None:
-    batch_size = FLAGS.grid_height * FLAGS.grid_width
+  batch_size = FLAGS.grid_height * FLAGS.grid_width
 elif FLAGS.batch_size is not None:
-    batch_size = FLAGS.batch_size
+  batch_size = FLAGS.batch_size
 else:
-    raise Exception('grid_height/grid_width or batch_size must be provided')
+  raise Exception('grid_height/grid_width or batch_size must be provided')
 
 # default size parameters
 input_width = FLAGS.input_width
@@ -79,53 +81,46 @@ def main(_):
   if not os.path.exists(sample_dir):
     os.makedirs(sample_dir)
 
-  #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
-  run_config = tf.ConfigProto()
-  run_config.gpu_options.allow_growth=True
-
-  with tf.Session(config=run_config) as sess:
-    if FLAGS.dataset == 'mnist':
-      dcgan = DCGAN(
-          sess,
-          input_width=input_width,
-          input_height=input_height,
-          output_width=output_width,
-          output_height=output_height,
-          grid_height=FLAGS.grid_height,
-          grid_width=FLAGS.grid_width,
-          batch_size=batch_size,
-          sample_num=batch_size,
-          y_dim=10,
-          z_dim=FLAGS.generate_test_images,
-          dataset_name=FLAGS.dataset,
-          input_fname_pattern=FLAGS.input_fname_pattern,
-          crop=FLAGS.crop,
-          checkpoint_dir=FLAGS.checkpoint_dir,
-          sample_dir=sample_dir,
-          nbr_of_layers_d=FLAGS.nbr_of_layers_d,
-          nbr_of_layers_g=FLAGS.nbr_of_layers_g,
-          use_checkpoints=FLAGS.use_checkpoints)
-    else:
-      dcgan = DCGAN(
-          sess,
-          input_width=input_width,
-          input_height=input_height,
-          output_width=output_width,
-          output_height=output_height,
-          grid_height=FLAGS.grid_height,
-          grid_width=FLAGS.grid_width,
-          batch_size=batch_size,
-          sample_num=batch_size,
-          z_dim=FLAGS.generate_test_images,
-          dataset_name=FLAGS.dataset,
-          input_fname_pattern=FLAGS.input_fname_pattern,
-          crop=FLAGS.crop,
-          checkpoint_dir=FLAGS.checkpoint_dir,
-          sample_dir=sample_dir,
-          sample_rate=FLAGS.sample_rate,
-          nbr_of_layers_d=FLAGS.nbr_of_layers_d,
-          nbr_of_layers_g=FLAGS.nbr_of_layers_g,
-          use_checkpoints=FLAGS.use_checkpoints)
+  if FLAGS.dataset == 'mnist':
+    dcgan = DCGAN(
+      input_width=input_width,
+      input_height=input_height,
+      output_width=output_width,
+      output_height=output_height,
+      grid_height=FLAGS.grid_height,
+      grid_width=FLAGS.grid_width,
+      batch_size=batch_size,
+      sample_num=batch_size,
+      y_dim=10,
+      z_dim=FLAGS.generate_test_images,
+      dataset_name=FLAGS.dataset,
+      input_fname_pattern=FLAGS.input_fname_pattern,
+      crop=FLAGS.crop,
+      checkpoint_dir=FLAGS.checkpoint_dir,
+      sample_dir=sample_dir,
+      nbr_of_layers_d=FLAGS.nbr_of_layers_d,
+      nbr_of_layers_g=FLAGS.nbr_of_layers_g,
+      use_checkpoints=FLAGS.use_checkpoints)
+  else:
+    dcgan = DCGAN(
+      input_width=input_width,
+      input_height=input_height,
+      output_width=output_width,
+      output_height=output_height,
+      grid_height=FLAGS.grid_height,
+      grid_width=FLAGS.grid_width,
+      batch_size=batch_size,
+      sample_num=batch_size,
+      z_dim=FLAGS.generate_test_images,
+      dataset_name=FLAGS.dataset,
+      input_fname_pattern=FLAGS.input_fname_pattern,
+      crop=FLAGS.crop,
+      checkpoint_dir=FLAGS.checkpoint_dir,
+      sample_dir=sample_dir,
+      sample_rate=FLAGS.sample_rate,
+      nbr_of_layers_d=FLAGS.nbr_of_layers_d,
+      nbr_of_layers_g=FLAGS.nbr_of_layers_g,
+      use_checkpoints=FLAGS.use_checkpoints)
 
     show_all_variables()
 
@@ -134,7 +129,6 @@ def main(_):
     else:
       if not dcgan.load(FLAGS.checkpoint_dir)[0]:
         raise Exception("[!] Train a model first, then run test mode")
-      
 
     # to_json("./web/js/layers.js", [dcgan.h0_w, dcgan.h0_b, dcgan.g_bn0],
     #                 [dcgan.h1_w, dcgan.h1_b, dcgan.g_bn1],
@@ -143,8 +137,9 @@ def main(_):
     #                 [dcgan.h4_w, dcgan.h4_b, None])
 
     # Below is codes for visualization
-    OPTION = 1
-    visualize(sess, dcgan, FLAGS, batch_size, OPTION)
+    # OPTION = 1
+    # visualize(sess, dcgan, FLAGS, batch_size, OPTION)
+
 
 if __name__ == '__main__':
   tf.app.run()

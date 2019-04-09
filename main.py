@@ -8,6 +8,8 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
+import horovod.tensorflow as hvd
+
 from model import DCGAN
 from utils import pp, visualize, show_all_variables
 
@@ -65,6 +67,7 @@ if (input_height is None and input_width is None) or (output_height is None and 
 
 def main(_):
   pp.pprint(flags.FLAGS.__flags)
+  hvd.init()
 
   if FLAGS.input_width is None:
     FLAGS.input_width = FLAGS.input_height
@@ -82,6 +85,7 @@ def main(_):
   #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
   run_config = tf.ConfigProto()
   run_config.gpu_options.allow_growth=True
+  run_config.gpu_options.visible_device_list = str(hvd.local_rank())
 
   with tf.Session(config=run_config) as sess:
     if FLAGS.dataset == 'mnist':

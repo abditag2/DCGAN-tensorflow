@@ -7,6 +7,8 @@ from glob import glob
 from ops import *
 from utils import *
 
+import horovod.tensorflow as hvd
+
 
 def conv_out_size_same(size, stride):
   return int(math.ceil(float(size) / float(stride)))
@@ -155,14 +157,23 @@ class DCGAN(object):
     self.saver = tf.train.Saver()
 
   def train(self, config):
-    d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
-              .minimize(self.d_loss, var_list=self.d_vars)
-    g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
-              .minimize(self.g_loss, var_list=self.g_vars)
+
+    global_step = tf.train.get_or_create_global_step()
+    d_optim = hvd.DistributedOptimizer(tf.train.AdamOptimizer(
+        config.learning_rate,beta1=config.beta1)).minimize(
+      self.d_loss, var_list=self.d_vars, global_step=global_step)
+
+    g_optim = hvd.DistributedOptimizer(
+      tf.train.AdamOptimizer(config.learning_rate,
+                             beta1=config.beta1)).minimize(
+      self.g_loss, var_list=self.g_vars, global_step=global_step)
+
     try:
       tf.global_variables_initializer().run()
     except:
       tf.initialize_all_variables().run()
+
+    hvd.broadcast_global_variables(0).run()
 
     self.g_sum = merge_summary([self.z_sum, self.d__sum,
       self.G_sum, self.d_loss_fake_sum, self.g_loss_sum])

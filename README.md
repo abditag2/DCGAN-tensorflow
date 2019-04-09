@@ -1,12 +1,17 @@
 # About this fork
-The idea is to tinker a bit with the code to better understand how it works and to better interface with 
-[another project](https://github.com/benckx/dnn-movie-posters).
+* This code adds multi GPU support to DCGAN code using Horovod framework. Horovod allows you to scale up to hundreds of GPUs and get a pretty decent scaling efficiency. If you are not familiar with horovod, check out 
+[**this tutorial**](https://www.youtube.com/watch?v=4y0TDK3KoCA) to learn more 
+about it. 
 
-* Compatible with TensorFlow 1.5.0
-* Added parameters `grid_height` and `grid_width`: the size of the grid of the 'train' and 'test' images (in the folder 'samples')
-* Parameters `input_height`, `input_width`, `output_height`, `output_width` are set automatically 
-(assuming all images in the data set have the same size)
-* Added `sample_rate` parameter: how often it creates a sample image ('1' for every iteration, '2' for every other iteration, etc.)
+**Installing Horovod**
+
+Check out  
+[**installation guide**](https://github.com/horovod/horovod#install) to learn 
+how to install it.
+
+To run the example below with multiple GPUs follow this pattern; for example, to use 4 hosts with 1 gpu each do:
+
+    $ horovodrun -np 16 host-1:4,host-2:4,host-3:4,host-4:4 python main.py --dataset mnist --input_height=28 --output_height=28 --train
 
 # DCGAN in Tensorflow
 

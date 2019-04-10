@@ -159,14 +159,16 @@ class DCGAN(object):
   def train(self, config):
 
     global_step = tf.train.get_or_create_global_step()
-    d_optim = hvd.DistributedOptimizer(tf.train.AdamOptimizer(
-        config.learning_rate,beta1=config.beta1)).minimize(
-      self.d_loss, var_list=self.d_vars, global_step=global_step)
+    d_optim = hvd.DistributedOptimizer(
+      tf.train.AdamOptimizer(
+        config.learning_rate * hvd.size(),
+        beta1=config.beta1)
+    ).minimize(self.d_loss, var_list=self.d_vars, global_step=global_step)
 
     g_optim = hvd.DistributedOptimizer(
-      tf.train.AdamOptimizer(config.learning_rate,
-                             beta1=config.beta1)).minimize(
-      self.g_loss, var_list=self.g_vars, global_step=global_step)
+      tf.train.AdamOptimizer(config.learning_rate * hvd.size(),
+                             beta1=config.beta1)
+    ).minimize(self.g_loss, var_list=self.g_vars, global_step=global_step)
 
     try:
       tf.global_variables_initializer().run()
